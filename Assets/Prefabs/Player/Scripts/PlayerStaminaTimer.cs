@@ -20,6 +20,9 @@
         /// </summary>
         private readonly Player _player;
 
+        /// <summary>
+        /// The flag to indicate if the player previously running
+        /// </summary>
         private bool _previouslyRunning;
 
         /// <summary>

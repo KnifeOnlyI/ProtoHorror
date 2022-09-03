@@ -64,6 +64,16 @@ namespace Prefabs.Player.Scripts
         public int loosedStaminaForJump = 10;
 
         /// <summary>
+        /// The minimum height (in meters) to fall to loose life
+        /// </summary>
+        public int minFallingHeightToLooseLife = 5;
+
+        /// <summary>
+        /// The life to loose for every falling meters
+        /// </summary>
+        public int looseLifePerMetersFall = 20;
+
+        /// <summary>
         /// The minimal distance for ground check
         /// </summary>
         public float groundDistance = 0.1f;
@@ -144,6 +154,11 @@ namespace Prefabs.Player.Scripts
         private Player _player;
 
         /// <summary>
+        /// The height when the player last touched the ground
+        /// </summary>
+        private float _previousGroundedHeight;
+
+        /// <summary>
         /// The current movement speed
         /// </summary>
         private float _speed;
@@ -183,6 +198,7 @@ namespace Prefabs.Player.Scripts
 
             _speed = walkSpeed;
 
+            _previousGroundedHeight = _transform.position.y;
             _staminaTimer = new PlayerStaminaTimer(_player, 0.1f, loosedStaminaPerSeconds, gainedStaminaPerSeconds);
         }
 
@@ -262,7 +278,28 @@ namespace Prefabs.Player.Scripts
         /// </summary>
         private void CheckGrounded()
         {
-            _isGrounded = Physics.CheckSphere(_groundChecker.position, groundDistance, groundMask);
+            var isGrounded = Physics.CheckSphere(_groundChecker.position, groundDistance, groundMask);
+
+            // The player just touch the ground, calculate the damages with his previous height
+            if (!_isGrounded && isGrounded)
+            {
+                var newHeight = _transform.position.y;
+
+                var fallingHeight = _previousGroundedHeight - newHeight;
+
+                if (fallingHeight > minFallingHeightToLooseLife)
+                {
+                    _player.LooseLife((int) (fallingHeight * looseLifePerMetersFall));
+                }
+            }
+
+            _isGrounded = isGrounded;
+
+            // The player just untouch the ground, save his height in memory to calculate the damages later
+            if (_isGrounded)
+            {
+                _previousGroundedHeight = _transform.position.y;
+            }
 
             if (_isGrounded && _velocity.y < 0.0f)
             {

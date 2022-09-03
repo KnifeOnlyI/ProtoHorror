@@ -55,6 +55,15 @@ namespace Prefabs.Player.Scripts
         }
 
         /// <summary>
+        /// Loose the specified quantity of life
+        /// </summary>
+        /// <param name="value">The life to loose</param>
+        public void LooseLife(int value)
+        {
+            _hud.LifeBar.SubtractCurrentValue(value);
+        }
+
+        /// <summary>
         /// Check if has stamina
         /// </summary>
         /// <returns>TRUE if has stamina, FALSE otherwise</returns>
