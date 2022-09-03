@@ -55,6 +55,33 @@ namespace Prefabs.Player.Scripts
         }
 
         /// <summary>
+        /// Set the cursor type
+        /// </summary>
+        /// <param name="cursorType">The type of cursor to set</param>
+        public void SetCursorType(CursorTypes cursorType)
+        {
+            _hud.SetCursorType(cursorType);
+        }
+
+        /// <summary>
+        /// Check if has full life
+        /// </summary>
+        /// <returns>TRUE if has full life, FALSE otherwise</returns>
+        public bool HasFullLife()
+        {
+            return _hud.LifeBar.IsFull();
+        }
+
+        /// <summary>
+        /// Gain the specified quantity of life
+        /// </summary>
+        /// <param name="value">The life to gain</param>
+        public void GainLife(int value)
+        {
+            _hud.LifeBar.AddCurrentValue(value);
+        }
+
+        /// <summary>
         /// Loose the specified quantity of life
         /// </summary>
         /// <param name="value">The life to loose</param>

@@ -212,6 +212,9 @@ namespace Prefabs.Player.Scripts
             UpdateTimers();
         }
 
+        /// <summary>
+        /// Update all timers
+        /// </summary>
         private void UpdateTimers()
         {
             _staminaTimer.Update();

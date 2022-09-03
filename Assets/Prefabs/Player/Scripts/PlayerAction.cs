@@ -1,3 +1,4 @@
+using Settings;
 using UnityEngine;
 using Utils;
 
@@ -36,7 +37,12 @@ namespace Prefabs.Player.Scripts
         /// <summary>
         /// The target for interraction
         /// </summary>
-        private RaycastHit _interractTarget;
+        private IInterractable _interractTarget;
+
+        /// <summary>
+        /// The player component
+        /// </summary>
+        private Player _player;
 
         /// <summary>
         /// The transform in the Behavior base class
@@ -49,12 +55,61 @@ namespace Prefabs.Player.Scripts
 
             var body = _transform.Find("Body");
 
+            _player = GetComponent<Player>();
             _camera = body.Find("Camera").GetComponent<Camera>();
         }
 
         private void Update()
         {
-            _interractRay = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+            UpdateInterractableTarget();
+        }
+
+        /// <summary>
+        /// Update the interractable target
+        /// </summary>
+        private void UpdateInterractableTarget()
+        {
+            _interractTarget = null;
+            _player.SetCursorType(CursorTypes.Base);
+
+            if (canInterract)
+            {
+                _interractRay = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+
+                var hit = RaycastUtils.Cast(_interractRay, interractRange);
+
+                if (hit != null)
+                {
+                    var hitTransform = hit.Value.transform;
+
+                    if (hitTransform.tag.Contains(Tags.Interractable))
+                    {
+                        ManageInterractableHit(hitTransform);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Manage the specified interractable hit
+        /// </summary>
+        /// <param name="hit">The interractable hit to manage</param>
+        private void ManageInterractableHit(Component hit)
+        {
+            var interractable = hit.GetComponent<IInterractable>();
+
+            if (interractable != null)
+            {
+                if (!interractable.CanInterract(_player))
+                {
+                    _player.SetCursorType(CursorTypes.Forbidden);
+                }
+                else
+                {
+                    _player.SetCursorType(CursorTypes.Interract);
+                    _interractTarget = interractable;
+                }
+            }
         }
 
         /// <summary>
@@ -63,15 +118,7 @@ namespace Prefabs.Player.Scripts
         // ReSharper disable once UnusedMember.Local
         private void OnInterract()
         {
-            if (canInterract)
-            {
-                var hit = RaycastUtils.Cast(_interractRay, interractRange);
-
-                if (hit != null)
-                {
-                    Debug.Log("Interract with object");
-                }
-            }
+            _interractTarget?.Interract(_player);
         }
     }
 }
