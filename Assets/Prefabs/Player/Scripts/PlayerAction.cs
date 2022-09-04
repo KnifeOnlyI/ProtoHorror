@@ -17,7 +17,7 @@ namespace Prefabs.Player.Scripts
         /// <summary>
         /// The maximum range for interractions
         /// </summary>
-        public float interractRange = 2.0f;
+        public float interractRange = 3.0f;
 
         /// <summary>
         /// The camera 
@@ -119,6 +119,26 @@ namespace Prefabs.Player.Scripts
         private void OnInterract()
         {
             _interractTarget?.Interract(_player);
+        }
+
+        private void OnSave()
+        {
+            SaveUtils.SavePlayer(_player);
+        }
+
+        private void OnLoad()
+        {
+            var data = SaveUtils.LoadPlayer();
+
+            _player.SetMaxLife(data.maxLife, false);
+            _player.SetMaxStamina(data.maxStamina, false);
+            _player.SetMaxMana(data.maxMana, false);
+
+            _player.SetLife(data.life);
+            _player.SetStamina(data.stamina);
+            _player.SetMana(data.mana);
+
+            _player.SetPosition(SerializationUtils.UnserializeVector3(data.position));
         }
     }
 }

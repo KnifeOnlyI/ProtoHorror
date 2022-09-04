@@ -152,6 +152,24 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Save"",
+                    ""type"": ""Button"",
+                    ""id"": ""b2786e9e-050e-420b-9560-703505eeb57a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Load"",
+                    ""type"": ""Button"",
+                    ""id"": ""2a27f745-58f8-4a4f-9a31-9954ac4c9ba6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -308,6 +326,28 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
                     ""action"": ""Interract"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""53dc91fb-28cf-4cbb-a782-f228cea8a5f4"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""Save"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""91f20b76-9f78-405e-93a8-7909a2c5fbc4"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""Load"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -347,6 +387,8 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
         m_Player_SecondaryAction = m_Player.FindAction("Secondary Action", throwIfNotFound: true);
         m_Player_SwitchNextItem = m_Player.FindAction("Switch Next Item", throwIfNotFound: true);
         m_Player_SwitchPreviousItem = m_Player.FindAction("Switch Previous Item", throwIfNotFound: true);
+        m_Player_Save = m_Player.FindAction("Save", throwIfNotFound: true);
+        m_Player_Load = m_Player.FindAction("Load", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -420,6 +462,8 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_SecondaryAction;
     private readonly InputAction m_Player_SwitchNextItem;
     private readonly InputAction m_Player_SwitchPreviousItem;
+    private readonly InputAction m_Player_Save;
+    private readonly InputAction m_Player_Load;
     public struct PlayerActions
     {
         private @PlayerInputs m_Wrapper;
@@ -438,6 +482,8 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
         public InputAction @SecondaryAction => m_Wrapper.m_Player_SecondaryAction;
         public InputAction @SwitchNextItem => m_Wrapper.m_Player_SwitchNextItem;
         public InputAction @SwitchPreviousItem => m_Wrapper.m_Player_SwitchPreviousItem;
+        public InputAction @Save => m_Wrapper.m_Player_Save;
+        public InputAction @Load => m_Wrapper.m_Player_Load;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -489,6 +535,12 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
                 @SwitchPreviousItem.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSwitchPreviousItem;
                 @SwitchPreviousItem.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSwitchPreviousItem;
                 @SwitchPreviousItem.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSwitchPreviousItem;
+                @Save.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSave;
+                @Save.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSave;
+                @Save.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSave;
+                @Load.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLoad;
+                @Load.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLoad;
+                @Load.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLoad;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -535,6 +587,12 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
                 @SwitchPreviousItem.started += instance.OnSwitchPreviousItem;
                 @SwitchPreviousItem.performed += instance.OnSwitchPreviousItem;
                 @SwitchPreviousItem.canceled += instance.OnSwitchPreviousItem;
+                @Save.started += instance.OnSave;
+                @Save.performed += instance.OnSave;
+                @Save.canceled += instance.OnSave;
+                @Load.started += instance.OnLoad;
+                @Load.performed += instance.OnLoad;
+                @Load.canceled += instance.OnLoad;
             }
         }
     }
@@ -564,5 +622,7 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
         void OnSecondaryAction(InputAction.CallbackContext context);
         void OnSwitchNextItem(InputAction.CallbackContext context);
         void OnSwitchPreviousItem(InputAction.CallbackContext context);
+        void OnSave(InputAction.CallbackContext context);
+        void OnLoad(InputAction.CallbackContext context);
     }
 }

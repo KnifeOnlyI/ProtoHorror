@@ -308,6 +308,8 @@ MonoBehaviour:
   loosedStaminaPerSeconds: 4
   gainedStaminaPerSeconds: 16
   loosedStaminaForJump: 10
+  minFallingHeightToLooseLife: 5
+  looseLifePerMetersFall: 20
   groundDistance: 0.1
   groundMask:
     serializedVersion: 2
@@ -325,7 +327,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canInterract: 1
-  interractRange: 2
+  interractRange: 3
 --- !u!1 &9166972478244976020
 GameObject:
   m_ObjectHideFlags: 0

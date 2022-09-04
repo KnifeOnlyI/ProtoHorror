@@ -33,14 +33,18 @@ namespace Prefabs.Player.Scripts
         /// </summary>
         private PlayerMovement _movement;
 
+        private Vector3? _newPosition;
+
+        private Transform _transform;
+
         /// <summary>
         /// Called before the first frame update
         /// </summary>
         private void Awake()
         {
-            var t = transform;
+            _transform = transform;
 
-            _hud = t.Find("HUD").GetComponent<PlayerHUD>();
+            _hud = _transform.Find("HUD").GetComponent<PlayerHUD>();
             _movement = GetComponent<PlayerMovement>();
         }
 
@@ -52,6 +56,18 @@ namespace Prefabs.Player.Scripts
             _hud.LifeBar.SetMaxValue(initialLife, true);
             _hud.StaminaBar.SetMaxValue(initialStamina, true);
             _hud.ManaBar.SetMaxValue(initialMana, true);
+        }
+
+        private void Update()
+        {
+            if (_newPosition.HasValue)
+            {
+                Debug.Log("Set new position : " + _newPosition.Value.x + " " + _newPosition.Value.y + " " +
+                          _newPosition.Value.z);
+
+                _transform.position = _newPosition.Value;
+                _newPosition = null;
+            }
         }
 
         /// <summary>
@@ -142,6 +158,61 @@ namespace Prefabs.Player.Scripts
         public bool IsRunning()
         {
             return _movement.IsRunning();
+        }
+
+        public int GetLife()
+        {
+            return _hud.LifeBar.GetCurrentValue();
+        }
+
+        public void SetMaxLife(int value, bool fill)
+        {
+            _hud.LifeBar.SetMaxValue(value, fill);
+        }
+
+        public void SetLife(int value)
+        {
+            _hud.LifeBar.SetCurrentValue(value);
+        }
+
+        public int GetStamina()
+        {
+            return _hud.StaminaBar.GetCurrentValue();
+        }
+
+        public void SetStamina(int value)
+        {
+            _hud.StaminaBar.SetCurrentValue(value);
+        }
+
+        public void SetMaxStamina(int value, bool fill)
+        {
+            _hud.StaminaBar.SetMaxValue(value, fill);
+        }
+
+        public int GetMana()
+        {
+            return _hud.ManaBar.GetCurrentValue();
+        }
+
+        public void SetMana(int value)
+        {
+            _hud.ManaBar.SetCurrentValue(value);
+        }
+
+        public void SetMaxMana(int value, bool fill)
+        {
+            _hud.ManaBar.SetMaxValue(value, fill);
+        }
+
+        public Vector3 GetPosition()
+        {
+            return _transform.position;
+        }
+
+        public void SetPosition(Vector3 value)
+        {
+            _newPosition = value;
         }
     }
 }
