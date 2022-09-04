@@ -143,5 +143,31 @@ namespace Prefabs.Player.Scripts
         {
             return _movement.IsRunning();
         }
+
+        /// <summary>
+        /// Check if the crouch input is pressed
+        /// </summary>
+        /// <returns>TRUE if the crouch input is pressed, FALSE otherwise</returns>
+        public bool IsCrouchPressed()
+        {
+            return _movement.IsCrouchPressed();
+        }
+
+        /// <summary>
+        /// Set can uncrouch flag value
+        /// </summary>
+        /// <param name="value">The new value</param>
+        public void SetCanUncrouch(bool value)
+        {
+            _movement.SetCanUncrouch(value);
+        }
+
+        /// <summary>
+        /// Uncrouch (may be fail if the player is in a crouch area)
+        /// </summary>
+        public void Uncrouch()
+        {
+            _movement.Uncrouch();
+        }
     }
 }

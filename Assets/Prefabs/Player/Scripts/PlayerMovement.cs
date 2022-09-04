@@ -84,9 +84,21 @@ namespace Prefabs.Player.Scripts
         public LayerMask groundMask;
 
         /// <summary>
+        /// The body
+        /// </summary>
+        private Transform _body;
+
+        /// <summary>
         /// The camera 
         /// </summary>
         private Camera _camera;
+
+        private bool _canUncrouch = true;
+
+        /// <summary>
+        /// The capsule collider
+        /// </summary>
+        private CapsuleCollider _collider;
 
         /// <summary>
         /// The character controller to manage player movements
@@ -102,6 +114,8 @@ namespace Prefabs.Player.Scripts
         /// The flag to indicated if the player is crouch
         /// </summary>
         private bool _isCrouch;
+
+        private bool _isCrouchPressed;
 
         /// <summary>
         /// The flag to indicates if the player is on the ground
@@ -189,14 +203,16 @@ namespace Prefabs.Player.Scripts
 
             _transform = transform;
 
-            var body = _transform.Find("Body");
-
+            _body = _transform.Find("Body");
             _player = GetComponent<Player>();
             _controller = GetComponent<CharacterController>();
-            _camera = body.Find("Camera").GetComponent<Camera>();
-            _groundChecker = body.Find("GroundChecker");
+            _collider = _body.GetComponent<CapsuleCollider>();
+            _camera = _body.Find("Camera").GetComponent<Camera>();
+            _groundChecker = _body.Find("GroundChecker");
 
             _speed = walkSpeed;
+
+            _body.gameObject.GetComponent<Renderer>().enabled = true;
 
             _previousGroundedHeight = _transform.position.y;
             _staminaTimer = new PlayerStaminaTimer(_player, 0.1f, loosedStaminaPerSeconds, gainedStaminaPerSeconds);
@@ -346,9 +362,47 @@ namespace Prefabs.Player.Scripts
         {
             if (canCrouch)
             {
-                _isCrouch = value.isPressed;
+                _isCrouchPressed = value.isPressed;
 
-                Debug.Log($"Is crouch : {_isCrouch}");
+                if (_isCrouchPressed)
+                {
+                    Crouch();
+                }
+                else
+                {
+                    Uncrouch();
+                }
+            }
+        }
+
+        private void Crouch()
+        {
+            if (!_isCrouch)
+            {
+                var bodyOriginalScale = _body.localScale;
+
+                _body.localScale = new Vector3(bodyOriginalScale.x, 0.9f, bodyOriginalScale.z);
+                _collider.height = 1;
+                _controller.height = 1;
+
+                _isCrouch = true;
+            }
+        }
+
+        /// <summary>
+        /// Uncrouch (may be fail if the player is in a crouch area)
+        /// </summary>
+        public void Uncrouch()
+        {
+            if (_canUncrouch && _isCrouch)
+            {
+                var bodyOriginalScale = _body.localScale;
+
+                _body.localScale = new Vector3(bodyOriginalScale.x, 1.8f, bodyOriginalScale.z);
+                _collider.height = 2;
+                _controller.height = 2;
+
+                _isCrouch = false;
             }
         }
 
@@ -452,6 +506,24 @@ namespace Prefabs.Player.Scripts
         public bool IsRunning()
         {
             return _isRunning;
+        }
+
+        /// <summary>
+        /// Check if the crouch input is pressed
+        /// </summary>
+        /// <returns>TRUE if the crouch input is pressed, FALSE otherwise</returns>
+        public bool IsCrouchPressed()
+        {
+            return _isCrouchPressed;
+        }
+
+        /// <summary>
+        /// Set can uncrouch flag value
+        /// </summary>
+        /// <param name="value">The new value</param>
+        public void SetCanUncrouch(bool value)
+        {
+            _canUncrouch = value;
         }
     }
 }
