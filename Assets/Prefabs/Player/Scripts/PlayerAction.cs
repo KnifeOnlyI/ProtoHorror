@@ -1,5 +1,6 @@
 using Settings;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Utils;
 
 namespace Prefabs.Player.Scripts
@@ -30,6 +31,11 @@ namespace Prefabs.Player.Scripts
         private bool _hasInterractTarget;
 
         /// <summary>
+        /// The flag to indicates if the player is in interraction
+        /// </summary>
+        private bool _inInterraction;
+
+        /// <summary>
         /// The raycast for interractions
         /// </summary>
         private Ray _interractRay;
@@ -43,6 +49,11 @@ namespace Prefabs.Player.Scripts
         /// The player component
         /// </summary>
         private Player _player;
+
+        /// <summary>
+        /// The previous target for interraction
+        /// </summary>
+        private IInterractable _previousInterractTarget;
 
         /// <summary>
         /// The transform in the Behavior base class
@@ -69,6 +80,7 @@ namespace Prefabs.Player.Scripts
         /// </summary>
         private void UpdateInterractableTarget()
         {
+            _previousInterractTarget = _interractTarget;
             _interractTarget = null;
             _player.SetCursorType(CursorTypes.Base);
 
@@ -87,6 +99,12 @@ namespace Prefabs.Player.Scripts
                         ManageInterractableHit(hitTransform);
                     }
                 }
+            }
+
+            if (_previousInterractTarget != null && _interractTarget == null && _inInterraction)
+            {
+                _previousInterractTarget.Uninterract(_player);
+                _inInterraction = false;
             }
         }
 
@@ -116,9 +134,19 @@ namespace Prefabs.Player.Scripts
         /// When OnInterract input detected
         /// </summary>
         // ReSharper disable once UnusedMember.Local
-        private void OnInterract()
+        private void OnInterract(InputValue value)
         {
-            _interractTarget?.Interract(_player);
+            switch (value.isPressed)
+            {
+                case true when !_inInterraction && _interractTarget != null:
+                    _inInterraction = true;
+                    _interractTarget.Interract(_player);
+                    break;
+                case false when _inInterraction:
+                    _inInterraction = false;
+                    _interractTarget?.Uninterract(_player);
+                    break;
+            }
         }
 
         private void OnSave()

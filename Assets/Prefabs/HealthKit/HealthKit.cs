@@ -14,6 +14,10 @@ namespace Prefabs.HealthKit
             Destroy(gameObject);
         }
 
+        public void Uninterract(Player.Scripts.Player player)
+        {
+        }
+
         public bool CanInterract(Player.Scripts.Player player)
         {
             return !player.HasFullLife();

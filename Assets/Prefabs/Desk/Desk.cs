@@ -1,37 +1,44 @@
 using UnityEngine;
-using Random = System.Random;
+using Utils;
 
 namespace Prefabs.Desk
 {
     [ExecuteAlways]
     public class Desk : MonoBehaviour
     {
-        public GameObject computerModel;
+        [Range(0, 3)] public int nbComputers;
+        public bool mouse;
+        public bool keyboard;
 
-        public bool random = true;
-        public bool computer1;
-        public bool computer2;
-        public bool computer3;
+        private GameObject _computerScreen1;
+        private GameObject _computerScreen2;
+        private GameObject _computerScreen3;
+        private GameObject _computerScreen4;
+        private GameObject _computerScreen5;
+        private GameObject _keyboard;
+        private GameObject _mouse;
+        private bool _previousKeyboard;
+        private bool _previousMouse;
 
-        private readonly Vector3 _computer1Pos = new(-0.35f, 1.55f, 0);
-        private readonly Vector3 _computer1Rot = new(0, 180f, 0);
+        private int _previousNbComputers;
 
-        private readonly Vector3 _computer2Pos = new(-0.05f, 1.55f, 1.172f);
-        private readonly Vector3 _computer2Rot = new(0, -150, 0);
-
-        private readonly Vector3 _computer3Pos = new(-0.05f, 1.55f, -1.172f);
-        private readonly Vector3 _computer3Rot = new(0, -210, 0);
-        private bool _previousComputer1;
-        private bool _previousComputer2;
-        private bool _previousComputer3;
-
-        private bool _previousRandom;
-
-        private void Start()
+        private void Awake()
         {
-            if (Application.isEditor)
+            _computerScreen1 = transform.Find("ComputerScreen1").gameObject;
+            _computerScreen2 = transform.Find("ComputerScreen2").gameObject;
+            _computerScreen3 = transform.Find("ComputerScreen3").gameObject;
+            _computerScreen4 = transform.Find("ComputerScreen4").gameObject;
+            _computerScreen5 = transform.Find("ComputerScreen5").gameObject;
+            _mouse = transform.Find("Mouse").gameObject;
+            _keyboard = transform.Find("Keyboard").gameObject;
+
+            if (Application.isPlaying)
             {
-                OnEditorStart();
+                OnPlayStart();
+            }
+            else if (Application.isEditor)
+            {
+                ManageGameObjectsInEditor();
             }
         }
 
@@ -43,174 +50,124 @@ namespace Prefabs.Desk
             }
         }
 
-        private void OnEditorStart()
+        private void OnPlayStart()
         {
-            _previousRandom = random;
-
-            if (!random)
+            // Destroy the not needed game objects
+            switch (nbComputers)
             {
-                return;
+                case 0:
+                    Destroy(_computerScreen1);
+                    Destroy(_computerScreen2);
+                    Destroy(_computerScreen3);
+                    Destroy(_computerScreen4);
+                    Destroy(_computerScreen5);
+                    break;
+                case 1:
+                    GameObjectUtils.ShowGameObject(_computerScreen1);
+                    Destroy(_computerScreen2);
+                    Destroy(_computerScreen3);
+                    Destroy(_computerScreen4);
+                    Destroy(_computerScreen5);
+                    break;
+                case 2:
+                    Destroy(_computerScreen1);
+                    Destroy(_computerScreen2);
+                    Destroy(_computerScreen3);
+                    GameObjectUtils.ShowGameObject(_computerScreen4);
+                    GameObjectUtils.ShowGameObject(_computerScreen5);
+                    break;
+                case 3:
+                    GameObjectUtils.ShowGameObject(_computerScreen1);
+                    GameObjectUtils.ShowGameObject(_computerScreen2);
+                    GameObjectUtils.ShowGameObject(_computerScreen3);
+                    Destroy(_computerScreen4);
+                    Destroy(_computerScreen5);
+                    break;
             }
 
-            SetRandomComputers();
+            if (mouse)
+            {
+                GameObjectUtils.ShowGameObject(_mouse);
+            }
+            else
+            {
+                Destroy(_mouse);
+            }
+
+            if (keyboard)
+            {
+                GameObjectUtils.ShowGameObject(_keyboard);
+            }
+            else
+            {
+                Destroy(_keyboard);
+            }
         }
 
         private void OnEditorUpdate()
         {
-            // If random mode just changed
-            if (random != _previousRandom)
+            // If the developer has just changed the desk configuration, update the game objects visibility
+            if (nbComputers != _previousNbComputers || mouse != _previousMouse || keyboard != _previousKeyboard)
             {
-                _previousRandom = random;
+                ManageGameObjectsInEditor();
 
-                // If random mode just activated
-                if (random)
-                {
-                    SetRandomComputers();
-                }
-            }
-
-            // If the computer 1 state just changed 
-            if (computer1 != _previousComputer1)
-            {
-                UpdateComputer1();
-
-                random = false;
-            }
-
-            // If the computer 2 state just changed 
-            if (computer2 != _previousComputer2)
-            {
-                UpdateComputer2();
-
-                random = false;
-            }
-
-            // If the computer 3 state just changed 
-            if (computer3 != _previousComputer3)
-            {
-                UpdateComputer3();
-
-                random = false;
+                _previousNbComputers = nbComputers;
+                _previousMouse = mouse;
+                _previousKeyboard = keyboard;
             }
         }
 
-        private void UpdateComputer1()
+        private void ManageGameObjectsInEditor()
         {
-            _previousComputer1 = computer1;
-
-            if (computer1)
+            switch (nbComputers)
             {
-                CreateComputer(1, _computer1Pos, _computer1Rot);
-            }
-            else
-            {
-                DestroyComputer(1);
-            }
-        }
-
-        private void UpdateComputer2()
-        {
-            _previousComputer2 = computer2;
-
-            if (computer2)
-            {
-                CreateComputer(2, _computer2Pos, _computer2Rot);
-            }
-            else
-            {
-                DestroyComputer(2);
-            }
-        }
-
-        private void UpdateComputer3()
-        {
-            _previousComputer3 = computer3;
-
-            if (computer3)
-            {
-                CreateComputer(3, _computer3Pos, _computer3Rot);
-            }
-            else
-            {
-                DestroyComputer(3);
-            }
-        }
-
-        private void UpdateAllComputers()
-        {
-            UpdateComputer1();
-            UpdateComputer2();
-            UpdateComputer3();
-        }
-
-        private void SetRandomComputers()
-        {
-            var nb = new Random().Next(1, 4);
-
-            switch (nb)
-            {
+                case 0:
+                    GameObjectUtils.HideGameObject(_computerScreen1);
+                    GameObjectUtils.HideGameObject(_computerScreen2);
+                    GameObjectUtils.HideGameObject(_computerScreen3);
+                    GameObjectUtils.HideGameObject(_computerScreen4);
+                    GameObjectUtils.HideGameObject(_computerScreen5);
+                    break;
                 case 1:
-                    computer1 = true;
-                    computer2 = false;
-                    computer3 = false;
+                    GameObjectUtils.ShowGameObject(_computerScreen1);
+                    GameObjectUtils.HideGameObject(_computerScreen2);
+                    GameObjectUtils.HideGameObject(_computerScreen3);
+                    GameObjectUtils.HideGameObject(_computerScreen4);
+                    GameObjectUtils.HideGameObject(_computerScreen5);
                     break;
                 case 2:
-                    computer1 = true;
-                    computer2 = true;
-                    computer3 = false;
+                    GameObjectUtils.HideGameObject(_computerScreen1);
+                    GameObjectUtils.HideGameObject(_computerScreen2);
+                    GameObjectUtils.HideGameObject(_computerScreen3);
+                    GameObjectUtils.ShowGameObject(_computerScreen4);
+                    GameObjectUtils.ShowGameObject(_computerScreen5);
                     break;
                 case 3:
-                    computer1 = true;
-                    computer2 = true;
-                    computer3 = true;
+                    GameObjectUtils.ShowGameObject(_computerScreen1);
+                    GameObjectUtils.ShowGameObject(_computerScreen2);
+                    GameObjectUtils.ShowGameObject(_computerScreen3);
+                    GameObjectUtils.HideGameObject(_computerScreen4);
+                    GameObjectUtils.HideGameObject(_computerScreen5);
                     break;
             }
 
-            UpdateAllComputers();
-
-            _previousComputer1 = computer1;
-            _previousComputer2 = computer2;
-            _previousComputer3 = computer3;
-        }
-
-        private void CreateComputer(int number, Vector3 pos, Vector3 rot)
-        {
-            if (ComputerExists(number))
+            if (mouse)
             {
-                return;
+                GameObjectUtils.ShowGameObject(_mouse);
+            }
+            else
+            {
+                GameObjectUtils.HideGameObject(_mouse);
             }
 
-            var computer = Instantiate(computerModel, gameObject.transform, true);
-
-            computer.name = GetComputerName(number);
-
-            computer.transform.localPosition = pos;
-            computer.transform.localRotation = Quaternion.Euler(rot);
-        }
-
-        private void DestroyComputer(int number)
-        {
-            var computer = GetComputer(number);
-
-            if (computer != null)
+            if (keyboard)
             {
-                DestroyImmediate(computer.gameObject);
+                GameObjectUtils.ShowGameObject(_keyboard);
             }
-        }
-
-        private Transform GetComputer(int number)
-        {
-            return transform.Find(GetComputerName(number));
-        }
-
-        private bool ComputerExists(int number)
-        {
-            return GetComputer(number) != null;
-        }
-
-        private static string GetComputerName(int number)
-        {
-            return $"Computer{number}";
+            else
+            {
+                GameObjectUtils.HideGameObject(_keyboard);
+            }
         }
     }
 }
